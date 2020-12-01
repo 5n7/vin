@@ -89,10 +89,7 @@ func (v *Vin) install(url string) error {
 		return err
 	}
 
-	tmpDir, err := ioutil.TempDir(v.tmpDir(), "")
-	if err != nil {
-		return err
-	}
+	tmpDir := filepath.Dir(archivePath)
 	defer os.RemoveAll(tmpDir)
 
 	if err := archiver.Unarchive(archivePath, tmpDir); err != nil {
