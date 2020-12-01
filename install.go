@@ -34,7 +34,11 @@ func (v *Vin) download(url string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	defer os.RemoveAll(tmpDir)
+	defer func() {
+		if err != nil {
+			os.RemoveAll(tmpDir)
+		}
+	}()
 
 	archiveName := filepath.Base(url)
 	archivePath := filepath.Join(tmpDir, archiveName)
