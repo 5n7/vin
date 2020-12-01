@@ -35,6 +35,11 @@ func (c *CLI) Run() error {
 
 	for _, app := range v.Apps {
 		urls := app.suitableAssetURLs()
+		if len(urls) == 0 {
+			fmt.Fprintf(os.Stderr, "no suitable assets are found: %s\n", app.Repo)
+			continue
+		}
+
 		for _, url := range urls {
 			if err := v.install(url); err != nil {
 				fmt.Fprintln(os.Stderr, err)
