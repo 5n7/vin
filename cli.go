@@ -46,6 +46,11 @@ func (c *CLI) Run() error {
 				continue
 			}
 		}
+
+		if err := app.runCommand(); err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			continue
+		}
 	}
 	return nil
 }

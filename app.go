@@ -21,6 +21,9 @@ type App struct {
 	// Keywords is a list of keywords for selecting suitable assets from multiple assets.
 	Keywords []string `toml:"keywords"`
 
+	// Command is the command to run after installation.
+	Command string `toml:"command"`
+
 	release *github.RepositoryRelease
 }
 
