@@ -1,20 +1,9 @@
 package main
 
 import (
-	"fmt"
-	"os"
-
-	"github.com/skmatz/vin"
+	"github.com/skmatz/vin/cmd/vin/cmd"
 )
 
-func run() error {
-	cli := vin.NewCLI()
-	return cli.Run()
-}
-
 func main() {
-	if err := run(); err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		return
-	}
+	cmd.Execute()
 }
