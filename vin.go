@@ -2,6 +2,7 @@ package vin
 
 import (
 	"context"
+	"encoding/json"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -49,8 +50,8 @@ func (v *Vin) tmpDir() string {
 }
 
 // New returns a Vin client.
-func New(path string) (*Vin, error) {
-	b, err := ioutil.ReadFile(path)
+func New(configPath, tokenPath string) (*Vin, error) {
+	b, err := ioutil.ReadFile(configPath)
 	if err != nil {
 		return nil, err
 	}
@@ -74,7 +75,23 @@ func New(path string) (*Vin, error) {
 		return nil, err
 	}
 
-	gh := newGitHubClient("")
+	token := os.Getenv("GITHUB_TOKEN")
+	if _, err := os.Stat(tokenPath); !os.IsNotExist(err) {
+		b, err = ioutil.ReadFile(tokenPath)
+		if err != nil {
+			return nil, err
+		}
+
+		var t struct {
+			Token string `json:"token"`
+		}
+		if err := json.Unmarshal(b, &t); err != nil {
+			return nil, err
+		}
+		token = t.Token
+	}
+
+	gh := newGitHubClient(token)
 	for i := range v.Apps {
 		if err := v.Apps[i].init(gh); err != nil {
 			return nil, err

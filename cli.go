@@ -21,6 +21,14 @@ func (c *CLI) defaultConfigPath() (string, error) {
 	return filepath.Join(cfg, "vin", "vin.toml"), nil
 }
 
+func (c *CLI) defaultTokenPath() (string, error) {
+	cfg, err := os.UserConfigDir()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(cfg, "vin", "token.json"), nil
+}
+
 // Run runs the CLI.
 func (c *CLI) Run() error {
 	configPath, err := c.defaultConfigPath()
@@ -28,7 +36,12 @@ func (c *CLI) Run() error {
 		return err
 	}
 
-	v, err := New(configPath)
+	tokenPath, err := c.defaultTokenPath()
+	if err != nil {
+		return err
+	}
+
+	v, err := New(configPath, tokenPath)
 	if err != nil {
 		return err
 	}
