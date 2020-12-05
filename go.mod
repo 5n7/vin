@@ -3,6 +3,7 @@ module github.com/skmatz/vin
 go 1.14
 
 require (
+	github.com/AlecAivazis/survey/v2 v2.2.2
 	github.com/BurntSushi/toml v0.3.1
 	github.com/cheggaaa/pb/v3 v3.0.5
 	github.com/google/go-github v17.0.0+incompatible

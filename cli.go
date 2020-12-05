@@ -1,9 +1,13 @@
 package vin
 
 import (
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"path/filepath"
+
+	"github.com/AlecAivazis/survey/v2"
 )
 
 // CLI represents a CLI for Vin.
@@ -65,5 +69,42 @@ func (c *CLI) Run() error {
 			continue
 		}
 	}
+	return nil
+}
+
+const tokenGenerateURL = "https://github.com/settings/tokens/new?description=Vin" //nolint:gosec
+
+// AskGitHubAccessToken prompts for the GitHub access token.
+func (c *CLI) AskGitHubAccessToken() error {
+	tokenPath, err := c.defaultTokenPath()
+	if err != nil {
+		return err
+	}
+
+	fmt.Println(tokenGenerateURL)
+	var token string
+	prompt := &survey.Input{
+		Message: "input your token:",
+	}
+	if err := survey.AskOne(prompt, &token); err != nil {
+		return err
+	}
+
+	var t = struct {
+		Token string `json:"token"`
+	}{Token: token}
+	b, err := json.Marshal(t)
+	if err != nil {
+		return err
+	}
+
+	if err := os.MkdirAll(filepath.Dir(tokenPath), os.ModePerm); err != nil {
+		return err
+	}
+
+	if err := ioutil.WriteFile(tokenPath, b, os.ModePerm); err != nil {
+		return err
+	}
+	fmt.Printf("your token is stored in %s\n", tokenPath)
 	return nil
 }
