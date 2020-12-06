@@ -80,10 +80,11 @@ func (a *App) init(gh *github.Client) error {
 	return nil
 }
 
-// contains returns whether all substrs are within s.
+// contains returns whether all substrs are within s (ignore case).
 func contains(s string, substrs []string) bool {
+	s = strings.ToLower(s)
 	for _, substr := range substrs {
-		if !strings.Contains(s, substr) {
+		if !strings.Contains(s, strings.ToLower(substr)) {
 			return false
 		}
 	}
