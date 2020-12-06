@@ -22,7 +22,7 @@ var getCmd = &cobra.Command{
 	RunE:  runGet,
 }
 
-func init() { //nolint:gochecknoinits
+func init() {
 	getCmd.Flags().BoolVarP(&selectApps, "select", "s", false, "select applications to install")
 
 	rootCmd.AddCommand(getCmd)

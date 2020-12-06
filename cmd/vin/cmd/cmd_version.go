@@ -20,6 +20,6 @@ var versionCmd = &cobra.Command{
 	RunE:  runVersion,
 }
 
-func init() { //nolint:gochecknoinits
+func init() {
 	rootCmd.AddCommand(versionCmd)
 }

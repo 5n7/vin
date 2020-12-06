@@ -17,6 +17,6 @@ var tokenCmd = &cobra.Command{
 	RunE:  runToken,
 }
 
-func init() { //nolint:gochecknoinits
+func init() {
 	rootCmd.AddCommand(tokenCmd)
 }

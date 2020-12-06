@@ -22,7 +22,7 @@ var rootCmd = &cobra.Command{
 	RunE:  runRoot,
 }
 
-func init() { //nolint:gochecknoinits
+func init() {
 	rootCmd.Flags().BoolVarP(&version, "version", "V", false, "show version")
 }
 

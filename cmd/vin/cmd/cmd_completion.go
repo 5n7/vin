@@ -30,7 +30,7 @@ var completionCmd = &cobra.Command{
 	RunE:  runCompletion,
 }
 
-func init() { //nolint:gochecknoinits
+func init() {
 	completionCmd.Flags().StringVarP(&shell, "shell", "s", "bash", "shell type (bash/fish/powershell/zsh)")
 
 	rootCmd.AddCommand(completionCmd)
