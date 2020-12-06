@@ -3,6 +3,7 @@ package vin
 import (
 	"context"
 	"fmt"
+	"path/filepath"
 	"regexp"
 	"runtime"
 	"strings"
@@ -94,7 +95,8 @@ var archiveRegexp = regexp.MustCompile(`\.(tar\.gz|tgz|zip)$`)
 func (a *App) suitableURLs(urls []string) []string {
 	r := make([]string, 0)
 	for _, url := range urls {
-		if contains(url, a.Keywords) && archiveRegexp.MatchString(url) {
+		name := filepath.Base(url)
+		if contains(name, a.Keywords) && archiveRegexp.MatchString(name) {
 			r = append(r, url)
 		}
 	}
