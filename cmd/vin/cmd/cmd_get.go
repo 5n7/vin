@@ -5,9 +5,14 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var selectApps bool
+
 func runGet(cmd *cobra.Command, args []string) error {
 	cli := vin.NewCLI()
-	return cli.Run()
+	opt := vin.CLIOptions{
+		SelectApps: selectApps,
+	}
+	return cli.Run(opt)
 }
 
 var getCmd = &cobra.Command{
@@ -18,5 +23,7 @@ var getCmd = &cobra.Command{
 }
 
 func init() { //nolint:gochecknoinits
+	getCmd.Flags().BoolVarP(&selectApps, "select", "s", false, "select applications to install")
+
 	rootCmd.AddCommand(getCmd)
 }

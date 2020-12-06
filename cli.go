@@ -33,8 +33,36 @@ func (c *CLI) defaultTokenPath() (string, error) {
 	return filepath.Join(cfg, "vin", "token.json"), nil
 }
 
+func (c *CLI) selectApps(v Vin) ([]App, error) {
+	// allApps is a map for referencing applications by repository name
+	allApps := make(map[string]App)
+	for _, app := range v.Apps {
+		allApps[app.Repo] = app
+	}
+
+	repos := make([]string, 0)
+	prompt := &survey.MultiSelect{
+		Message: "select applications to install",
+		Options: v.repos(),
+	}
+	if err := survey.AskOne(prompt, &repos); err != nil {
+		return nil, err
+	}
+
+	apps := make([]App, 0)
+	for _, repo := range repos {
+		apps = append(apps, allApps[repo])
+	}
+	return apps, nil
+}
+
+// CLIOptions represents options for the CIL.
+type CLIOptions struct {
+	SelectApps bool
+}
+
 // Run runs the CLI.
-func (c *CLI) Run() error {
+func (c *CLI) Run(opt CLIOptions) error {
 	configPath, err := c.defaultConfigPath()
 	if err != nil {
 		return err
@@ -48,6 +76,14 @@ func (c *CLI) Run() error {
 	v, err := New(configPath, tokenPath)
 	if err != nil {
 		return err
+	}
+
+	if opt.SelectApps {
+		apps, err := c.selectApps(*v)
+		if err != nil {
+			return err
+		}
+		v.Apps = apps
 	}
 
 	for _, app := range v.Apps {
