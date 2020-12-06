@@ -65,6 +65,17 @@ func isExecutable(info os.FileInfo) bool {
 	return info.Mode()&0111 != 0
 }
 
+func (v *Vin) place(app App, src string) error {
+	if app.Name == "" {
+		app.Name = filepath.Base(src)
+	}
+	dst := filepath.Join(v.binDir(), app.Name)
+	if err := os.Rename(src, dst); err != nil {
+		return err
+	}
+	return os.Chmod(dst, 0755)
+}
+
 // pickExecutable picks all executable files and moves them to the bin directory.
 func (v *Vin) pickExecutable(app App, rootDir string) error {
 	return filepath.Walk(rootDir, func(path string, info os.FileInfo, err error) error {
@@ -80,7 +91,7 @@ func (v *Vin) pickExecutable(app App, rootDir string) error {
 			if app.Name == "" {
 				app.Name = info.Name()
 			}
-			return os.Rename(path, filepath.Join(v.binDir(), app.Name))
+			return v.place(app, path)
 		}
 		return nil
 	})
@@ -94,6 +105,14 @@ func (v *Vin) install(app App, url string) error {
 
 	tmpDir := filepath.Dir(archivePath)
 	defer os.RemoveAll(tmpDir)
+
+	if name := filepath.Base(archivePath); !anyExtRegexp.MatchString(name) {
+		// the asset is a binary file
+		if app.Name == "" {
+			app.Name = name
+		}
+		return v.place(app, archivePath)
+	}
 
 	if err := archiver.Unarchive(archivePath, tmpDir); err != nil {
 		return err

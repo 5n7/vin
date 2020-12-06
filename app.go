@@ -90,13 +90,16 @@ func contains(s string, substrs []string) bool {
 	return true
 }
 
-var archiveRegexp = regexp.MustCompile(`\.(tar\.gz|tgz|zip)$`)
+var (
+	anyExtRegexp  = regexp.MustCompile(`\.[a-zA-Z0-9]+$`)
+	archiveRegexp = regexp.MustCompile(`\.(tar\.gz|tgz|zip)$`)
+)
 
 func (a *App) suitableURLs(urls []string) []string {
 	r := make([]string, 0)
 	for _, url := range urls {
 		name := filepath.Base(url)
-		if contains(name, a.Keywords) && archiveRegexp.MatchString(name) {
+		if contains(name, a.Keywords) && (!anyExtRegexp.MatchString(name) || archiveRegexp.MatchString(name)) {
 			r = append(r, url)
 		}
 	}
