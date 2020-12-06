@@ -58,7 +58,7 @@ func (c *CLI) Run() error {
 		}
 
 		for _, url := range urls {
-			if err := v.install(url); err != nil {
+			if err := v.install(app, url); err != nil {
 				fmt.Fprintln(os.Stderr, err)
 				continue
 			}

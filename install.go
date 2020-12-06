@@ -66,7 +66,7 @@ func isExecutable(info os.FileInfo) bool {
 }
 
 // pickExecutable picks all executable files and moves them to the bin directory.
-func (v *Vin) pickExecutable(rootDir string) error {
+func (v *Vin) pickExecutable(app App, rootDir string) error {
 	return filepath.Walk(rootDir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
@@ -77,13 +77,16 @@ func (v *Vin) pickExecutable(rootDir string) error {
 		}
 
 		if isExecutable(info) {
-			return os.Rename(path, filepath.Join(v.binDir(), info.Name()))
+			if app.Name == "" {
+				app.Name = info.Name()
+			}
+			return os.Rename(path, filepath.Join(v.binDir(), app.Name))
 		}
 		return nil
 	})
 }
 
-func (v *Vin) install(url string) error {
+func (v *Vin) install(app App, url string) error {
 	archivePath, err := v.download(url)
 	if err != nil {
 		return err
@@ -96,7 +99,7 @@ func (v *Vin) install(url string) error {
 		return err
 	}
 
-	if err := v.pickExecutable(tmpDir); err != nil {
+	if err := v.pickExecutable(app, tmpDir); err != nil {
 		return err
 	}
 	return nil

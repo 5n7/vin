@@ -115,6 +115,10 @@ tag = "v1.2.0"
 # If empty, it is treated as [$GOOS, $GOARCH].
 keywords = ["amd64", "linux"]
 
+# name is the name of the executable file.
+# If empty, it is treated as the original name.
+name = "gh"
+
 # command is the command to run after installation.
 command = """
 gh completion -s zsh > ~/.zfunc/_gh
