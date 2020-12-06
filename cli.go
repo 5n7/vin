@@ -6,8 +6,11 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/AlecAivazis/survey/v2"
+	"github.com/vbauerster/mpb/v5"
+	"golang.org/x/sync/errgroup"
 )
 
 // CLI represents a CLI for Vin.
@@ -86,24 +89,36 @@ func (c *CLI) Run(opt CLIOptions) error {
 		v.Apps = apps
 	}
 
+	p := mpb.New(
+		mpb.WithRefreshRate(180 * time.Millisecond), //nolint:gomnd
+	)
+
+	var eg errgroup.Group
 	for _, app := range v.Apps {
-		urls := app.suitableAssetURLs()
-		if len(urls) == 0 {
-			fmt.Fprintf(os.Stderr, "no suitable assets are found: %s\n", app.Repo)
-			continue
-		}
-
-		for _, url := range urls {
-			if err := v.install(app, url); err != nil {
-				fmt.Fprintln(os.Stderr, err)
-				continue
+		app := app
+		eg.Go(func() error {
+			urls := app.suitableAssetURLs()
+			if len(urls) == 0 {
+				return fmt.Errorf("no suitable assets are found: %s", app.Repo)
 			}
-		}
 
-		if err := app.runCommand(); err != nil {
-			fmt.Fprintln(os.Stderr, err)
-			continue
-		}
+			if len(urls) > 1 {
+				return fmt.Errorf("cannot identify one asset; %d assets are found: %s", len(urls), app.Repo)
+			}
+
+			if err := v.install(app, urls[0], p); err != nil {
+				return err
+			}
+
+			if err := app.runCommand(); err != nil {
+				return err
+			}
+			return nil
+		})
+	}
+
+	if err := eg.Wait(); err != nil {
+		return err
 	}
 	return nil
 }

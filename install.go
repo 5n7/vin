@@ -9,11 +9,19 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/cheggaaa/pb/v3"
+	"github.com/fatih/color"
 	"github.com/mholt/archiver/v3"
+	"github.com/vbauerster/mpb/v5"
+	"github.com/vbauerster/mpb/v5/decor"
 )
 
-func (v *Vin) download(url string) (string, error) {
+var (
+	cyan    = color.New(color.FgCyan)
+	green   = color.New(color.FgGreen)
+	magenta = color.New(color.FgMagenta)
+)
+
+func (v *Vin) download(app App, url string, p *mpb.Progress) (string, error) {
 	ctx := context.Background()
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
@@ -49,15 +57,34 @@ func (v *Vin) download(url string) (string, error) {
 	}
 	defer out.Close()
 
+	if p == nil {
+		// w/o progressbar
+		if _, err := io.Copy(out, resp.Body); err != nil {
+			return "", err
+		}
+		return archivePath, nil
+	}
+
 	// display progressbar
-	tmpl := fmt.Sprintf("{{ \"%s\" | green }} ", archiveName) +
-		`{{ bar . "<" "-" (cycle . "↖" "↗" "↘" "↙" ) "." ">"}} {{ speed . | magenta }} {{ percent . | cyan }}`
-	bar := pb.ProgressBarTemplate(tmpl).Start64(resp.ContentLength)
-	barReader := bar.NewProxyReader(resp.Body)
-	if _, err := io.Copy(out, barReader); err != nil {
+	bar := p.AddBar(
+		resp.ContentLength,
+		mpb.BarStyle("[=>-]"),
+		mpb.PrependDecorators(
+			decor.Name(green.Sprintf("%s@%s", app.Repo, *app.release.TagName)),
+		),
+		mpb.AppendDecorators(
+			decor.EwmaSpeed(decor.UnitKiB, magenta.Sprint("% .2f"), 60),
+			decor.Name(" "),
+			decor.NewPercentage(cyan.Sprint("% d"), decor.WCSyncSpace),
+		),
+	)
+
+	proxyReader := bar.ProxyReader(resp.Body)
+	defer proxyReader.Close()
+
+	if _, err := io.Copy(out, proxyReader); err != nil {
 		return "", err
 	}
-	bar.Finish()
 	return archivePath, nil
 }
 
@@ -97,8 +124,8 @@ func (v *Vin) pickExecutable(app App, rootDir string) error {
 	})
 }
 
-func (v *Vin) install(app App, url string) error {
-	archivePath, err := v.download(url)
+func (v *Vin) install(app App, url string, p *mpb.Progress) error {
+	archivePath, err := v.download(app, url, p)
 	if err != nil {
 		return err
 	}
