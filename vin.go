@@ -10,6 +10,7 @@ import (
 	"github.com/BurntSushi/toml"
 	"github.com/google/go-github/github"
 	"golang.org/x/oauth2"
+	"golang.org/x/sync/errgroup"
 )
 
 // Vin represents a Vin client.
@@ -92,10 +93,19 @@ func New(configPath, tokenPath string) (*Vin, error) {
 	}
 
 	gh := newGitHubClient(token)
+	var eg errgroup.Group
 	for i := range v.Apps {
-		if err := v.Apps[i].init(gh); err != nil {
-			return nil, err
-		}
+		i := i
+		eg.Go(func() error {
+			if err := v.Apps[i].init(gh); err != nil {
+				return err
+			}
+			return nil
+		})
+	}
+
+	if err := eg.Wait(); err != nil {
+		return nil, err
 	}
 	return &v, nil
 }
