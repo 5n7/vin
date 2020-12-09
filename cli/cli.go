@@ -51,8 +51,9 @@ func (c *CLI) selectApps(v *vin.Vin) (*vin.Vin, error) {
 
 // Options represents options for the CIL.
 type Options struct {
-	Priority   int
-	SelectApps bool
+	IgnoreFilter bool
+	Priority     int
+	SelectApps   bool
 }
 
 // Run runs the CLI.
@@ -72,13 +73,15 @@ func (c *CLI) Run(opt Options) error {
 		return err
 	}
 
-	host, err := os.Hostname()
-	if err != nil {
-		return err
-	}
-	v = v.FilterByHost(host)
+	if !opt.IgnoreFilter {
+		host, err := os.Hostname()
+		if err != nil {
+			return err
+		}
+		v = v.FilterByHost(host)
 
-	v = v.FilterByPriority(opt.Priority)
+		v = v.FilterByPriority(opt.Priority)
+	}
 
 	if opt.SelectApps {
 		vin, err := c.selectApps(v)
