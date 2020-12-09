@@ -25,6 +25,9 @@ type App struct {
 	// Name is the name of the executable file.
 	Name string `toml:"name"`
 
+	// Priority is the priority of the application.
+	Priority int `toml:"priority"`
+
 	// Command is the command to run after installation.
 	Command string `toml:"command"`
 

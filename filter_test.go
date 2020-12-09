@@ -43,6 +43,44 @@ func TestVin_Filter(t *testing.T) {
 	}
 }
 
+func TestVin_FilterByPriority(t *testing.T) {
+	type fields struct {
+		Apps []App
+	}
+	type args struct {
+		minPriority int
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		args   args
+		want   *Vin
+	}{
+		{
+			name: "",
+			fields: fields{
+				Apps: []App{{Priority: 1}, {Priority: 2}, {Priority: 3}},
+			},
+			args: args{
+				minPriority: 2,
+			},
+			want: &Vin{
+				Apps: []App{{Priority: 2}, {Priority: 3}},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			v := &Vin{
+				Apps: tt.fields.Apps,
+			}
+			if got := v.FilterByPriority(tt.args.minPriority); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("Vin.FilterByPriority() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
 func TestVin_FilterByRepo(t *testing.T) {
 	type fields struct {
 		Apps []App

@@ -5,13 +5,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var selectApps bool
+var opt cli.Options
 
 func runGet(cmd *cobra.Command, args []string) error {
 	c := cli.New()
-	opt := cli.Options{
-		SelectApps: selectApps,
-	}
 	return c.Run(opt)
 }
 
@@ -23,7 +20,8 @@ var getCmd = &cobra.Command{
 }
 
 func init() {
-	getCmd.Flags().BoolVarP(&selectApps, "select", "s", false, "select applications to install")
+	getCmd.Flags().IntVarP(&opt.Priority, "priority", "p", 0, "minimum priority for applications to install")
+	getCmd.Flags().BoolVarP(&opt.SelectApps, "select", "s", false, "select applications to install")
 
 	rootCmd.AddCommand(getCmd)
 }

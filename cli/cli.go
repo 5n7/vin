@@ -51,6 +51,7 @@ func (c *CLI) selectApps(v *vin.Vin) (*vin.Vin, error) {
 
 // Options represents options for the CIL.
 type Options struct {
+	Priority   int
 	SelectApps bool
 }
 
@@ -70,6 +71,8 @@ func (c *CLI) Run(opt Options) error {
 	if err != nil {
 		return err
 	}
+
+	v = v.FilterByPriority(opt.Priority)
 
 	if opt.SelectApps {
 		vin, err := c.selectApps(v)

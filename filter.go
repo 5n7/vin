@@ -11,6 +11,12 @@ func (v Vin) Filter(filter func(app App) bool) *Vin {
 	return &v
 }
 
+func (v *Vin) FilterByPriority(minPriority int) *Vin {
+	return v.Filter(func(app App) bool {
+		return app.Priority >= minPriority
+	})
+}
+
 func (v *Vin) FilterByRepo(repos []string) *Vin {
 	return v.Filter(func(app App) bool {
 		for _, repo := range repos {

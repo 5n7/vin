@@ -119,6 +119,9 @@ keywords = ["amd64", "linux"]
 # If empty, it is treated as the original name.
 name = "gh"
 
+# priority is the priority of the application.
+priority = 3
+
 # command is the command to run after installation.
 command = """
 gh completion -s zsh > ~/.zfunc/_gh
