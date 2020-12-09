@@ -147,6 +147,20 @@ func (c *CLI) StoreAccessToken(token string) error {
 		return err
 	}
 
+	if _, err := os.Stat(tokenPath); !os.IsNotExist(err) {
+		var overwrite bool
+		prompt := &survey.Confirm{
+			Message: "token file already exists; overwrite?",
+		}
+		if err := survey.AskOne(prompt, &overwrite); err != nil {
+			return err
+		}
+
+		if !overwrite {
+			return nil
+		}
+	}
+
 	var t = struct {
 		Token string `json:"token"`
 	}{Token: token}
