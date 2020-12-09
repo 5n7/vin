@@ -119,6 +119,10 @@ keywords = ["amd64", "linux"]
 # If empty, it is treated as the original name.
 name = "gh"
 
+# hosts is a list of host names.
+# If empty, it is treated as any hosts.
+hosts = ["awesome-machine"]
+
 # priority is the priority of the application.
 priority = 3
 

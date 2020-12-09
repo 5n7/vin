@@ -43,6 +43,44 @@ func TestVin_Filter(t *testing.T) {
 	}
 }
 
+func TestVin_FilterByHost(t *testing.T) {
+	type fields struct {
+		Apps []App
+	}
+	type args struct {
+		host string
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		args   args
+		want   *Vin
+	}{
+		{
+			name: "",
+			fields: fields{
+				Apps: []App{{Hosts: []string{}}, {Hosts: []string{"a"}}, {Hosts: []string{"a", "b"}}},
+			},
+			args: args{
+				host: "b",
+			},
+			want: &Vin{
+				Apps: []App{{Hosts: []string{}}, {Hosts: []string{"a", "b"}}},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			v := &Vin{
+				Apps: tt.fields.Apps,
+			}
+			if got := v.FilterByHost(tt.args.host); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("Vin.FilterByHost() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
 func TestVin_FilterByPriority(t *testing.T) {
 	type fields struct {
 		Apps []App

@@ -25,6 +25,9 @@ type App struct {
 	// Name is the name of the executable file.
 	Name string `toml:"name"`
 
+	// Hosts is a list of host names.
+	Hosts []string `toml:"hosts"`
+
 	// Priority is the priority of the application.
 	Priority int `toml:"priority"`
 

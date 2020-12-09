@@ -11,6 +11,21 @@ func (v Vin) Filter(filter func(app App) bool) *Vin {
 	return &v
 }
 
+func (v *Vin) FilterByHost(host string) *Vin {
+	return v.Filter(func(app App) bool {
+		if len(app.Hosts) == 0 {
+			return true
+		}
+
+		for _, h := range app.Hosts {
+			if h == host {
+				return true
+			}
+		}
+		return false
+	})
+}
+
 func (v *Vin) FilterByPriority(minPriority int) *Vin {
 	return v.Filter(func(app App) bool {
 		return app.Priority >= minPriority

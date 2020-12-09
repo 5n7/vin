@@ -72,6 +72,12 @@ func (c *CLI) Run(opt Options) error {
 		return err
 	}
 
+	host, err := os.Hostname()
+	if err != nil {
+		return err
+	}
+	v = v.FilterByHost(host)
+
 	v = v.FilterByPriority(opt.Priority)
 
 	if opt.SelectApps {
