@@ -110,7 +110,7 @@ func New(configPath, tokenPath string) (*Vin, error) {
 	return &v, nil
 }
 
-func (v *Vin) repos() []string {
+func (v *Vin) Repos() []string {
 	r := make([]string, 0)
 	for _, app := range v.Apps {
 		r = append(r, app.Repo)

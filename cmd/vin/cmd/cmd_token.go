@@ -1,13 +1,13 @@
 package cmd
 
 import (
-	"github.com/skmatz/vin"
+	"github.com/skmatz/vin/cli"
 	"github.com/spf13/cobra"
 )
 
 func runToken(cmd *cobra.Command, args []string) error {
-	cli := vin.NewCLI()
-	return cli.AskGitHubAccessToken()
+	c := cli.New()
+	return c.AskGitHubAccessToken()
 }
 
 var tokenCmd = &cobra.Command{

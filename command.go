@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-func (a *App) runCommand() error {
+func (a *App) RunCommand() error {
 	cmds := strings.Split(a.Command, "\n")
 	for _, cmd := range cmds {
 		if cmd == "" {

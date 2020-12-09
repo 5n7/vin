@@ -1,18 +1,18 @@
 package cmd
 
 import (
-	"github.com/skmatz/vin"
+	"github.com/skmatz/vin/cli"
 	"github.com/spf13/cobra"
 )
 
 var selectApps bool
 
 func runGet(cmd *cobra.Command, args []string) error {
-	cli := vin.NewCLI()
-	opt := vin.CLIOptions{
+	c := cli.New()
+	opt := cli.Options{
 		SelectApps: selectApps,
 	}
-	return cli.Run(opt)
+	return c.Run(opt)
 }
 
 var getCmd = &cobra.Command{

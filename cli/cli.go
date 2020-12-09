@@ -1,4 +1,4 @@
-package vin
+package cli
 
 import (
 	"encoding/json"
@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/AlecAivazis/survey/v2"
+	"github.com/skmatz/vin"
 	"github.com/vbauerster/mpb/v5"
 	"golang.org/x/sync/errgroup"
 )
@@ -16,7 +17,7 @@ import (
 // CLI represents a CLI for Vin.
 type CLI struct{}
 
-func NewCLI() *CLI {
+func New() *CLI {
 	return &CLI{}
 }
 
@@ -36,9 +37,9 @@ func (c *CLI) defaultTokenPath() (string, error) {
 	return filepath.Join(cfg, "vin", "token.json"), nil
 }
 
-func (c *CLI) selectApps(v Vin) ([]App, error) {
+func (c *CLI) selectApps(v vin.Vin) ([]vin.App, error) {
 	// allApps is a map for referencing applications by repository name
-	allApps := make(map[string]App)
+	allApps := make(map[string]vin.App)
 	for _, app := range v.Apps {
 		allApps[app.Repo] = app
 	}
@@ -46,26 +47,26 @@ func (c *CLI) selectApps(v Vin) ([]App, error) {
 	repos := make([]string, 0)
 	prompt := &survey.MultiSelect{
 		Message: "select applications to install",
-		Options: v.repos(),
+		Options: v.Repos(),
 	}
 	if err := survey.AskOne(prompt, &repos); err != nil {
 		return nil, err
 	}
 
-	apps := make([]App, 0)
+	apps := make([]vin.App, 0)
 	for _, repo := range repos {
 		apps = append(apps, allApps[repo])
 	}
 	return apps, nil
 }
 
-// CLIOptions represents options for the CIL.
-type CLIOptions struct {
+// Options represents options for the CIL.
+type Options struct {
 	SelectApps bool
 }
 
 // Run runs the CLI.
-func (c *CLI) Run(opt CLIOptions) error {
+func (c *CLI) Run(opt Options) error {
 	configPath, err := c.defaultConfigPath()
 	if err != nil {
 		return err
@@ -76,7 +77,7 @@ func (c *CLI) Run(opt CLIOptions) error {
 		return err
 	}
 
-	v, err := New(configPath, tokenPath)
+	v, err := vin.New(configPath, tokenPath)
 	if err != nil {
 		return err
 	}
@@ -97,7 +98,7 @@ func (c *CLI) Run(opt CLIOptions) error {
 	for _, app := range v.Apps {
 		app := app
 		eg.Go(func() error {
-			urls := app.suitableAssetURLs()
+			urls := app.SuitableAssetURLs()
 			if len(urls) == 0 {
 				return fmt.Errorf("no suitable assets are found: %s", app.Repo)
 			}
@@ -106,11 +107,11 @@ func (c *CLI) Run(opt CLIOptions) error {
 				return fmt.Errorf("cannot identify one asset; %d assets are found: %s", len(urls), app.Repo)
 			}
 
-			if err := v.install(app, urls[0], p); err != nil {
+			if err := v.Install(app, urls[0], p); err != nil {
 				return err
 			}
 
-			if err := app.runCommand(); err != nil {
+			if err := app.RunCommand(); err != nil {
 				return err
 			}
 			return nil

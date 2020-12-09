@@ -107,7 +107,7 @@ func (a *App) suitableURLs(urls []string) []string {
 	return r
 }
 
-func (a *App) suitableAssetURLs() []string {
+func (a *App) SuitableAssetURLs() []string {
 	urls := make([]string, 0)
 	for _, asset := range a.release.Assets {
 		urls = append(urls, *asset.BrowserDownloadURL)

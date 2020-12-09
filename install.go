@@ -124,7 +124,7 @@ func (v *Vin) pickExecutable(app App, rootDir string) error {
 	})
 }
 
-func (v *Vin) install(app App, url string, p *mpb.Progress) error {
+func (v *Vin) Install(app App, url string, p *mpb.Progress) error {
 	archivePath, err := v.download(app, url, p)
 	if err != nil {
 		return err
