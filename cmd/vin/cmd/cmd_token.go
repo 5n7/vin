@@ -7,7 +7,11 @@ import (
 
 func runToken(cmd *cobra.Command, args []string) error {
 	c := cli.New()
-	return c.AskGitHubAccessToken()
+	token, err := c.AskGitHubAccessToken()
+	if err != nil {
+		return err
+	}
+	return c.StoreAccessToken(token)
 }
 
 var tokenCmd = &cobra.Command{

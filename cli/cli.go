@@ -128,18 +128,22 @@ func (c *CLI) Run(opt Options) error {
 const tokenGenerateURL = "https://github.com/settings/tokens/new?description=Vin" //nolint:gosec
 
 // AskGitHubAccessToken prompts for the GitHub access token.
-func (c *CLI) AskGitHubAccessToken() error {
-	tokenPath, err := c.defaultTokenPath()
-	if err != nil {
-		return err
-	}
-
+func (c *CLI) AskGitHubAccessToken() (string, error) {
 	fmt.Println(tokenGenerateURL)
 	var token string
 	prompt := &survey.Input{
 		Message: "input your token:",
 	}
 	if err := survey.AskOne(prompt, &token); err != nil {
+		return "", err
+	}
+	return token, nil
+}
+
+// StoreAccessToken stores the GitHub access token.
+func (c *CLI) StoreAccessToken(token string) error {
+	tokenPath, err := c.defaultTokenPath()
+	if err != nil {
 		return err
 	}
 
