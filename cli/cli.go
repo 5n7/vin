@@ -37,13 +37,7 @@ func (c *CLI) defaultTokenPath() (string, error) {
 	return filepath.Join(cfg, "vin", "token.json"), nil
 }
 
-func (c *CLI) selectApps(v vin.Vin) ([]vin.App, error) {
-	// allApps is a map for referencing applications by repository name
-	allApps := make(map[string]vin.App)
-	for _, app := range v.Apps {
-		allApps[app.Repo] = app
-	}
-
+func (c *CLI) selectApps(v *vin.Vin) (*vin.Vin, error) {
 	repos := make([]string, 0)
 	prompt := &survey.MultiSelect{
 		Message: "select applications to install",
@@ -52,12 +46,7 @@ func (c *CLI) selectApps(v vin.Vin) ([]vin.App, error) {
 	if err := survey.AskOne(prompt, &repos); err != nil {
 		return nil, err
 	}
-
-	apps := make([]vin.App, 0)
-	for _, repo := range repos {
-		apps = append(apps, allApps[repo])
-	}
-	return apps, nil
+	return v.FilterByRepo(repos), nil
 }
 
 // Options represents options for the CIL.
@@ -83,11 +72,11 @@ func (c *CLI) Run(opt Options) error {
 	}
 
 	if opt.SelectApps {
-		apps, err := c.selectApps(*v)
+		vin, err := c.selectApps(v)
 		if err != nil {
 			return err
 		}
-		v.Apps = apps
+		v = vin
 	}
 
 	p := mpb.New(
