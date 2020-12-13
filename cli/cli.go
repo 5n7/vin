@@ -72,7 +72,7 @@ func (c *CLI) sanityCheck(app vin.App) error {
 }
 
 // Run runs the CLI.
-func (c *CLI) Run(opt Options) error {
+func (c *CLI) Run(opt Options) error { //nolint:gocognit
 	configPath, err := c.defaultConfigPath()
 	if err != nil {
 		return err
