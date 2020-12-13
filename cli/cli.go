@@ -56,6 +56,7 @@ func (c *CLI) selectApps(v *vin.Vin) (*vin.Vin, error) {
 
 // Options represents options for the CIL.
 type Options struct {
+	IgnoreCache  bool
 	IgnoreFilter bool
 	Priority     int
 	SelectApps   bool
@@ -143,9 +144,11 @@ func (c *CLI) Run(opt Options) error { //nolint:gocognit
 	for _, app := range v.Apps {
 		app := app
 		eg.Go(func() error {
-			exists, err := v.AppAlreadyInstalled(app)
-			if err != nil || exists {
-				return err
+			if !opt.IgnoreCache {
+				exists, err := v.AppAlreadyInstalled(app)
+				if err != nil || exists {
+					return err
+				}
 			}
 
 			if err := v.Install(app, app.SuitableAssetURLs()[0], p); err != nil {
