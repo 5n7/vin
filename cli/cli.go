@@ -99,6 +99,11 @@ func (c *CLI) Run(opt Options) error {
 	for _, app := range v.Apps {
 		app := app
 		eg.Go(func() error {
+			exists, err := v.AppAlreadyInstalled(app)
+			if err != nil || exists {
+				return err
+			}
+
 			urls := app.SuitableAssetURLs()
 			if len(urls) == 0 {
 				return fmt.Errorf("no suitable assets are found: %s", app.Repo)
@@ -113,6 +118,10 @@ func (c *CLI) Run(opt Options) error {
 			}
 
 			if err := app.RunCommand(); err != nil {
+				return err
+			}
+
+			if err := v.SaveCache(app); err != nil {
 				return err
 			}
 			return nil
