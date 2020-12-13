@@ -8,7 +8,7 @@ import (
 	"github.com/skmatz/vin/cache"
 )
 
-func (v *Vin) cacheDir() (string, error) {
+func (v *Vin) CacheDir() (string, error) {
 	cache, err := os.UserCacheDir()
 	if err != nil {
 		return "", err
@@ -19,7 +19,7 @@ func (v *Vin) cacheDir() (string, error) {
 var repoReplacer = strings.NewReplacer("/", "---")
 
 func (v *Vin) AppAlreadyInstalled(app App) (bool, error) {
-	cacheDir, err := v.cacheDir()
+	cacheDir, err := v.CacheDir()
 	if err != nil {
 		return false, err
 	}
@@ -31,7 +31,7 @@ func (v *Vin) AppAlreadyInstalled(app App) (bool, error) {
 }
 
 func (v *Vin) SaveCache(app App) error {
-	cacheDir, err := v.cacheDir()
+	cacheDir, err := v.CacheDir()
 	if err != nil {
 		return err
 	}

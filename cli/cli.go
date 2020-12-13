@@ -10,11 +10,14 @@ import (
 	"time"
 
 	"github.com/AlecAivazis/survey/v2"
+	"github.com/fatih/color"
 	multierror "github.com/hashicorp/go-multierror"
 	"github.com/skmatz/vin"
 	"github.com/vbauerster/mpb/v5"
 	"golang.org/x/sync/errgroup"
 )
+
+var cyan = color.New(color.FgCyan)
 
 // CLI represents a CLI for Vin.
 type CLI struct{}
@@ -163,6 +166,22 @@ func (c *CLI) Run(opt Options) error { //nolint:gocognit
 	if err := eg.Wait(); err != nil {
 		return err
 	}
+	return nil
+}
+
+// Clean cleans cache files.
+func (c *CLI) Clean() error {
+	var v vin.Vin
+
+	cacheDir, err := v.CacheDir()
+	if err != nil {
+		return err
+	}
+
+	if err := os.RemoveAll(cacheDir); err != nil {
+		return err
+	}
+	fmt.Println(cyan.Sprintf("cache directory removed: %s", cacheDir))
 	return nil
 }
 
