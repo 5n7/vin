@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"runtime"
 
 	"github.com/fatih/color"
 	"github.com/mholt/archiver/v3"
@@ -89,6 +90,9 @@ func (v *Vin) download(app App, url string, p *mpb.Progress) (string, error) {
 }
 
 func isExecutable(info os.FileInfo) bool {
+	if runtime.GOOS == "windows" {
+		return filepath.Ext(info.Name()) == ".exe"
+	}
 	return info.Mode()&0111 != 0
 }
 
