@@ -6,9 +6,11 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/AlecAivazis/survey/v2"
+	multierror "github.com/hashicorp/go-multierror"
 	"github.com/skmatz/vin"
 	"github.com/vbauerster/mpb/v5"
 	"golang.org/x/sync/errgroup"
@@ -56,6 +58,19 @@ type Options struct {
 	SelectApps   bool
 }
 
+// sanityCheck checks the app is ready to install.
+func (c *CLI) sanityCheck(app vin.App) error {
+	urls := app.SuitableAssetURLs()
+	if len(urls) == 0 {
+		return fmt.Errorf("no suitable assets are found: %s", app.Repo)
+	}
+
+	if len(urls) > 1 {
+		return fmt.Errorf("cannot identify one asset; %d assets are found: %s", len(urls), app.Repo)
+	}
+	return nil
+}
+
 // Run runs the CLI.
 func (c *CLI) Run(opt Options) error {
 	configPath, err := c.defaultConfigPath()
@@ -71,6 +86,32 @@ func (c *CLI) Run(opt Options) error {
 	v, err := vin.New(configPath, tokenPath)
 	if err != nil {
 		return err
+	}
+
+	repos := make([]string, 0)
+	var result *multierror.Error
+	for _, app := range v.Apps {
+		if err := c.sanityCheck(app); err != nil {
+			result = multierror.Append(result, err)
+		} else {
+			repos = append(repos, app.Repo)
+		}
+	}
+
+	if err := result.ErrorOrNil(); err != nil {
+		result.ErrorFormat = func(errs []error) string {
+			points := make([]string, len(errs))
+			for i, err := range errs {
+				points[i] = fmt.Sprintf("\t- %s", err)
+			}
+			return fmt.Sprintf(
+				"%d app(s) skipped installation:\n%s\n",
+				len(errs),
+				strings.Join(points, "\n"),
+			)
+		}
+		fmt.Fprintln(os.Stderr, err)
+		v = v.FilterByRepo(repos)
 	}
 
 	if !opt.IgnoreFilter {
@@ -104,16 +145,7 @@ func (c *CLI) Run(opt Options) error {
 				return err
 			}
 
-			urls := app.SuitableAssetURLs()
-			if len(urls) == 0 {
-				return fmt.Errorf("no suitable assets are found: %s", app.Repo)
-			}
-
-			if len(urls) > 1 {
-				return fmt.Errorf("cannot identify one asset; %d assets are found: %s", len(urls), app.Repo)
-			}
-
-			if err := v.Install(app, urls[0], p); err != nil {
+			if err := v.Install(app, app.SuitableAssetURLs()[0], p); err != nil {
 				return err
 			}
 

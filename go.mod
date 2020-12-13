@@ -8,6 +8,7 @@ require (
 	github.com/fatih/color v1.10.0
 	github.com/google/go-github v17.0.0+incompatible
 	github.com/google/go-querystring v1.0.0 // indirect
+	github.com/hashicorp/go-multierror v1.0.0
 	github.com/mholt/archiver/v3 v3.5.0
 	github.com/spf13/cobra v1.1.1
 	github.com/vbauerster/mpb/v5 v5.3.0
