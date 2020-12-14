@@ -14,25 +14,25 @@ import (
 // App represents an application.
 type App struct {
 	// Repo is the GitHub repository name in "owner/repo" format.
-	Repo string `toml:"repo"`
+	Repo string `toml:"repo,omitempty"`
 
 	// Tag is the tag on GitHub.
-	Tag string `toml:"tag"`
+	Tag string `toml:"tag,omitempty"`
 
 	// Keywords is a list of keywords for selecting suitable assets from multiple assets.
-	Keywords []string `toml:"keywords"`
+	Keywords []string `toml:"keywords,omitempty"`
 
 	// Name is the name of the executable file.
-	Name string `toml:"name"`
+	Name string `toml:"name,omitempty"`
 
 	// Hosts is a list of host names.
-	Hosts []string `toml:"hosts"`
+	Hosts []string `toml:"hosts,omitempty"`
 
 	// Priority is the priority of the application.
-	Priority int `toml:"priority"`
+	Priority int `toml:"priority,omitempty"`
 
 	// Command is the command to run after installation.
-	Command string `toml:"command"`
+	Command string `toml:"command,omitempty"`
 
 	release *github.RepositoryRelease
 }

@@ -94,6 +94,13 @@ First, put the following TOML file in `~/.config/vin/vin.toml`.
 repo = "cli/cli"
 ```
 
+You can set this with the following command.
+
+```console
+mkdir -p ~/.config/vin
+vin example > ~/.config/vin/vin.toml
+```
+
 Yes, all you have to do is run the following command.
 
 ```console

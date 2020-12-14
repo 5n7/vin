@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -12,6 +13,7 @@ import (
 	"github.com/AlecAivazis/survey/v2"
 	"github.com/fatih/color"
 	multierror "github.com/hashicorp/go-multierror"
+	"github.com/naoina/toml"
 	"github.com/skmatz/vin"
 	"github.com/vbauerster/mpb/v5"
 	"golang.org/x/sync/errgroup"
@@ -185,6 +187,21 @@ func (c *CLI) Clean() error {
 		return err
 	}
 	fmt.Println(cyan.Sprintf("cache directory removed: %s", cacheDir))
+	return nil
+}
+
+// Example shows a config example.
+func (c *CLI) Example() error {
+	v := vin.Vin{
+		Apps: []vin.App{{
+			Repo: "cli/cli",
+		}},
+	}
+	var buf bytes.Buffer
+	if err := toml.NewEncoder(&buf).Encode(v); err != nil {
+		return err
+	}
+	fmt.Print(buf.String())
 	return nil
 }
 
