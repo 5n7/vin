@@ -7,8 +7,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/BurntSushi/toml"
 	"github.com/google/go-github/github"
+	"github.com/naoina/toml"
 	"golang.org/x/oauth2"
 	"golang.org/x/sync/errgroup"
 )
@@ -52,13 +52,14 @@ func (v *Vin) tmpDir() string {
 
 // New returns a Vin client.
 func New(configPath, tokenPath string) (*Vin, error) {
-	b, err := ioutil.ReadFile(configPath)
+	f, err := os.Open(configPath)
 	if err != nil {
 		return nil, err
 	}
+	defer f.Close()
 
 	var v Vin
-	if _, err := toml.Decode(string(b), &v); err != nil {
+	if err := toml.NewDecoder(f).Decode(&v); err != nil {
 		return nil, err
 	}
 
@@ -78,7 +79,7 @@ func New(configPath, tokenPath string) (*Vin, error) {
 
 	token := os.Getenv("GITHUB_TOKEN")
 	if _, err := os.Stat(tokenPath); !os.IsNotExist(err) {
-		b, err = ioutil.ReadFile(tokenPath)
+		b, err := ioutil.ReadFile(tokenPath)
 		if err != nil {
 			return nil, err
 		}
