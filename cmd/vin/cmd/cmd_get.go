@@ -20,6 +20,7 @@ var getCmd = &cobra.Command{
 }
 
 func init() {
+	getCmd.Flags().StringVarP(&opt.ConfigPath, "config", "c", "", "specify the path to the config file")
 	getCmd.Flags().BoolVar(&opt.IgnoreCache, "ignore-cache", false, "ignore cache and install all applications")
 	getCmd.Flags().BoolVar(&opt.IgnoreFilter, "ignore-filter", false, "ignore all filters")
 	getCmd.Flags().IntVarP(&opt.Priority, "priority", "p", 0, "minimum priority for applications to install")

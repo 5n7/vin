@@ -36,6 +36,17 @@ func (c *CLI) defaultConfigPath() (string, error) {
 	return filepath.Join(cfg, "vin", "vin.toml"), nil
 }
 
+func (c *CLI) configPath(opt Options) (string, error) {
+	if opt.ConfigPath == "" {
+		path, err := c.defaultConfigPath()
+		if err != nil {
+			return "", err
+		}
+		return path, nil
+	}
+	return opt.ConfigPath, nil
+}
+
 func (c *CLI) defaultTokenPath() (string, error) {
 	cfg, err := os.UserConfigDir()
 	if err != nil {
@@ -58,6 +69,7 @@ func (c *CLI) selectApps(v *vin.Vin) (*vin.Vin, error) {
 
 // Options represents options for the CIL.
 type Options struct {
+	ConfigPath   string
 	IgnoreCache  bool
 	IgnoreFilter bool
 	Priority     int
@@ -79,7 +91,7 @@ func (c *CLI) sanityCheck(app vin.App) error {
 
 // Run runs the CLI.
 func (c *CLI) Run(opt Options) error { //nolint:gocognit
-	configPath, err := c.defaultConfigPath()
+	configPath, err := c.configPath(opt)
 	if err != nil {
 		return err
 	}
