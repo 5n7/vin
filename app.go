@@ -120,3 +120,10 @@ func (a *App) SuitableAssetURLs() []string {
 	}
 	return a.suitableURLs(urls)
 }
+
+func (a *App) TagName() (string, error) {
+	if a.release == nil {
+		return "", fmt.Errorf("failed to reference tag name; invalid release")
+	}
+	return *a.release.TagName, nil
+}

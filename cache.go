@@ -27,7 +27,11 @@ func (v *Vin) AppAlreadyInstalled(app App) (bool, error) {
 	c := cache.New(cacheDir)
 	key := repoReplacer.Replace(app.Repo)
 	value := c.GetString(key)
-	return value == *app.release.TagName, nil
+	tag, err := app.TagName()
+	if err != nil {
+		return false, err
+	}
+	return value == tag, nil
 }
 
 func (v *Vin) SaveCache(app App) error {
@@ -42,9 +46,9 @@ func (v *Vin) SaveCache(app App) error {
 
 	c := cache.New(cacheDir)
 	key := repoReplacer.Replace(app.Repo)
-	value := *app.release.TagName
-	if err := c.SetString(key, value); err != nil {
+	value, err := app.TagName()
+	if err != nil {
 		return err
 	}
-	return nil
+	return c.SetString(key, value)
 }
