@@ -10,19 +10,14 @@ import (
 	"path/filepath"
 	"runtime"
 
-	"github.com/fatih/color"
 	"github.com/mholt/archiver/v3"
-	"github.com/vbauerster/mpb/v5"
-	"github.com/vbauerster/mpb/v5/decor"
 )
 
-var (
-	cyan    = color.New(color.FgCyan)
-	green   = color.New(color.FgGreen)
-	magenta = color.New(color.FgMagenta)
-)
+type ReadCloserWrapper interface {
+	Wrap(app App, reader io.ReadCloser, contentLength int64) io.ReadCloser
+}
 
-func (v *Vin) download(app App, url string, p *mpb.Progress) (string, error) {
+func (v *Vin) download(app App, url string, wrapper ReadCloserWrapper) (string, error) {
 	ctx := context.Background()
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
@@ -58,32 +53,10 @@ func (v *Vin) download(app App, url string, p *mpb.Progress) (string, error) {
 	}
 	defer out.Close()
 
-	if p == nil {
-		// w/o progressbar
-		if _, err := io.Copy(out, resp.Body); err != nil {
-			return "", err
-		}
-		return archivePath, nil
-	}
+	reader := wrapper.Wrap(app, resp.Body, resp.ContentLength)
+	defer reader.Close()
 
-	// display progressbar
-	bar := p.AddBar(
-		resp.ContentLength,
-		mpb.BarStyle("[=>-]"),
-		mpb.PrependDecorators(
-			decor.Name(green.Sprintf("%s@%s", app.Repo, *app.release.TagName)),
-		),
-		mpb.AppendDecorators(
-			decor.EwmaSpeed(decor.UnitKiB, magenta.Sprint("% .2f"), 60),
-			decor.Name(" "),
-			decor.NewPercentage(cyan.Sprint("% d"), decor.WCSyncSpace),
-		),
-	)
-
-	proxyReader := bar.ProxyReader(resp.Body)
-	defer proxyReader.Close()
-
-	if _, err := io.Copy(out, proxyReader); err != nil {
+	if _, err := io.Copy(out, reader); err != nil {
 		return "", err
 	}
 	return archivePath, nil
@@ -128,8 +101,8 @@ func (v *Vin) pickExecutable(app App, rootDir string) error {
 	})
 }
 
-func (v *Vin) Install(app App, url string, p *mpb.Progress) error {
-	archivePath, err := v.download(app, url, p)
+func (v *Vin) Install(app App, url string, wrapper ReadCloserWrapper) error {
+	archivePath, err := v.download(app, url, wrapper)
 	if err != nil {
 		return err
 	}

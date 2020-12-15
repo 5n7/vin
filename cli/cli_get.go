@@ -2,6 +2,7 @@ package cli
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -11,6 +12,7 @@ import (
 	multierror "github.com/hashicorp/go-multierror"
 	"github.com/skmatz/vin"
 	"github.com/vbauerster/mpb/v5"
+	"github.com/vbauerster/mpb/v5/decor"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -73,6 +75,31 @@ func (c *CLI) selectApps(v *vin.Vin) (*vin.Vin, error) {
 		return nil, err
 	}
 	return v.FilterByRepo(repos), nil
+}
+
+type defaultReadCloserWrapper struct {
+	p *mpb.Progress
+}
+
+func (w defaultReadCloserWrapper) Wrap(a vin.App, r io.ReadCloser, l int64) io.ReadCloser {
+	tag, err := a.TagName()
+	if err != nil {
+		return r
+	}
+
+	bar := w.p.AddBar(
+		l,
+		mpb.BarStyle("[=>-]"),
+		mpb.PrependDecorators(
+			decor.Name(green.Sprintf("%s@%s", a.Repo, tag)),
+		),
+		mpb.AppendDecorators(
+			decor.EwmaSpeed(decor.UnitKiB, magenta.Sprint("% .2f"), 60),
+			decor.Name(" "),
+			decor.NewPercentage(cyan.Sprint("% d"), decor.WCSyncSpace),
+		),
+	)
+	return bar.ProxyReader(r)
 }
 
 // Run runs the CLI.
@@ -139,6 +166,7 @@ func (c *CLI) Run(opt Options) error { //nolint:gocognit
 	p := mpb.New(
 		mpb.WithRefreshRate(180 * time.Millisecond), //nolint:gomnd
 	)
+	wrapper := defaultReadCloserWrapper{p: p}
 
 	var eg errgroup.Group
 	for _, app := range v.Apps {
@@ -151,7 +179,7 @@ func (c *CLI) Run(opt Options) error { //nolint:gocognit
 				}
 			}
 
-			if err := v.Install(app, app.SuitableAssetURLs()[0], p); err != nil {
+			if err := v.Install(app, app.SuitableAssetURLs()[0], wrapper); err != nil {
 				return err
 			}
 
