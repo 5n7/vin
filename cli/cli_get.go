@@ -65,6 +65,17 @@ func (c *CLI) sanityCheck(app vin.App) error {
 	return nil
 }
 
+func (c *CLI) applyFilters(v *vin.Vin, opt Options) (*vin.Vin, error) {
+	host, err := os.Hostname()
+	if err != nil {
+		return v, err
+	}
+	v = v.FilterByHost(host)
+
+	v = v.FilterByPriority(opt.Priority)
+	return v, nil
+}
+
 func (c *CLI) selectApps(v *vin.Vin) (*vin.Vin, error) {
 	repos := make([]string, 0)
 	prompt := &survey.MultiSelect{
@@ -146,13 +157,11 @@ func (c *CLI) Run(opt Options) error { //nolint:gocognit
 	}
 
 	if !opt.IgnoreFilter {
-		host, err := os.Hostname()
+		vin, err := c.applyFilters(v, opt)
 		if err != nil {
 			return err
 		}
-		v = v.FilterByHost(host)
-
-		v = v.FilterByPriority(opt.Priority)
+		v = vin
 	}
 
 	if opt.SelectApps {
