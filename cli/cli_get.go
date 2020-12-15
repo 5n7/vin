@@ -79,7 +79,7 @@ func (c *CLI) applyFilters(v *vin.Vin, opt Options) (*vin.Vin, error) {
 func (c *CLI) selectApps(v *vin.Vin) (*vin.Vin, error) {
 	repos := make([]string, 0)
 	prompt := &survey.MultiSelect{
-		Message: "select applications to install",
+		Message: "Select applications to install",
 		Options: v.Repos(),
 	}
 	if err := survey.AskOne(prompt, &repos); err != nil {

@@ -17,7 +17,7 @@ func (c *CLI) AskGitHubAccessToken() (string, error) {
 	fmt.Println(tokenGenerateURL)
 	var token string
 	prompt := &survey.Input{
-		Message: "input your token:",
+		Message: "Input your token:",
 	}
 	if err := survey.AskOne(prompt, &token); err != nil {
 		return "", err
@@ -35,7 +35,7 @@ func (c *CLI) StoreAccessToken(token string) error {
 	if _, err := os.Stat(tokenPath); !os.IsNotExist(err) {
 		var overwrite bool
 		prompt := &survey.Confirm{
-			Message: "token file already exists; overwrite?",
+			Message: "Token file already exists. Overwrite?",
 		}
 		if err := survey.AskOne(prompt, &overwrite); err != nil {
 			return err
