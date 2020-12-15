@@ -21,7 +21,7 @@ var getCmd = &cobra.Command{
 
 func init() {
 	getCmd.Flags().BoolVar(&opt.IgnoreCache, "ignore-cache", false, "ignore cache and install all applications")
-	getCmd.Flags().BoolVarP(&opt.IgnoreFilter, "ignore-filter", "i", false, "ignore all filters")
+	getCmd.Flags().BoolVar(&opt.IgnoreFilter, "ignore-filter", false, "ignore all filters")
 	getCmd.Flags().IntVarP(&opt.Priority, "priority", "p", 0, "minimum priority for applications to install")
 	getCmd.Flags().BoolVarP(&opt.SelectApps, "select", "s", false, "select applications to install")
 
