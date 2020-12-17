@@ -97,8 +97,17 @@ repo = "cli/cli"
 You can set this with the following command.
 
 ```console
+# darwin
+mkdir -p ~/Library/Application\ Support/vin
+vin example > ~/Library/Application\ Support/vin/vin.toml
+
+# linux
 mkdir -p ~/.config/vin
 vin example > ~/.config/vin/vin.toml
+
+# windows (confirmed on Windows Terminal)
+mkdir -p ~\AppData\Roaming\vin\vin.toml
+vin example > ~\AppData\Roaming\vin\vin.toml
 ```
 
 Yes, all you have to do is run the following command.
