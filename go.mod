@@ -5,8 +5,7 @@ go 1.14
 require (
 	github.com/AlecAivazis/survey/v2 v2.2.3
 	github.com/fatih/color v1.10.0
-	github.com/google/go-github v17.0.0+incompatible
-	github.com/google/go-querystring v1.0.0 // indirect
+	github.com/google/go-github/v33 v33.0.0
 	github.com/hashicorp/go-multierror v1.0.0
 	github.com/kylelemons/godebug v1.1.0 // indirect
 	github.com/mholt/archiver/v3 v3.5.0

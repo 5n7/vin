@@ -7,7 +7,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/google/go-github/github"
+	"github.com/google/go-github/v33/github"
 	"github.com/naoina/toml"
 	"golang.org/x/oauth2"
 	"golang.org/x/sync/errgroup"
