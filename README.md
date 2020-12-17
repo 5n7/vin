@@ -75,13 +75,13 @@ Unfortunately, the first time you install `vin`, you need to open the browser.
 
 Or, if you have Go, you can install `vin` with the following command.
 
-```console
+```bash
 go get github.com/skmatz/vin/...
 ```
 
 After installation, add `~/.vin/bin` to your `$PATH`.
 
-```console
+```bash
 export PATH="$HOME/.vin/bin:$PATH"
 ```
 
@@ -96,7 +96,7 @@ repo = "cli/cli"
 
 You can set this with the following command.
 
-```console
+```bash
 # darwin
 mkdir -p ~/Library/Application\ Support/vin
 vin example > ~/Library/Application\ Support/vin/vin.toml
@@ -112,7 +112,7 @@ vin example > ~\AppData\Roaming\vin\vin.toml
 
 Yes, all you have to do is run the following command.
 
-```console
+```bash
 vin get
 ```
 
