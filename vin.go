@@ -50,6 +50,10 @@ func (v *Vin) tmpDir() string {
 	return filepath.Join(v.vinDir, "tmp")
 }
 
+type Token struct {
+	Token string `json:"token"`
+}
+
 // New returns a Vin client.
 func New(configPath, tokenPath string) (*Vin, error) {
 	f, err := os.Open(configPath)
@@ -84,9 +88,7 @@ func New(configPath, tokenPath string) (*Vin, error) {
 			return nil, err
 		}
 
-		var t struct {
-			Token string `json:"token"`
-		}
+		var t Token
 		if err := json.Unmarshal(b, &t); err != nil {
 			return nil, err
 		}

@@ -7,6 +7,8 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/skmatz/vin"
+
 	"github.com/AlecAivazis/survey/v2"
 )
 
@@ -46,9 +48,7 @@ func (c *CLI) StoreAccessToken(token string) error {
 		}
 	}
 
-	var t = struct {
-		Token string `json:"token"`
-	}{Token: token}
+	t := vin.Token{Token: token}
 	b, err := json.Marshal(t)
 	if err != nil {
 		return err
