@@ -1,16 +1,30 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 
+	"github.com/google/go-github/v33/github"
 	"github.com/skmatz/vin"
+	"golang.org/x/oauth2"
 
 	"github.com/AlecAivazis/survey/v2"
 )
+
+func validateToken(token string) bool {
+	ctx := context.Background()
+	sts := oauth2.StaticTokenSource(
+		&oauth2.Token{AccessToken: token},
+	)
+	gh := github.NewClient(oauth2.NewClient(ctx, sts))
+
+	_, _, err := gh.Octocat(context.Background(), "") // random API request
+	return err == nil
+}
 
 const tokenGenerateURL = "https://github.com/settings/tokens/new?description=Vin" //nolint:gosec
 
@@ -36,12 +50,14 @@ func (c *CLI) AskGitHubAccessToken() (string, error) {
 	}
 
 	fmt.Println(tokenGenerateURL)
-	prompt := &survey.Input{
-		Message: "Input your token:",
-		Default: token,
-	}
-	if err := survey.AskOne(prompt, &token); err != nil {
-		return "", err
+	for !validateToken(token) {
+		prompt := &survey.Input{
+			Message: "Input your token:",
+			Default: token,
+		}
+		if err := survey.AskOne(prompt, &token); err != nil {
+			return "", err
+		}
 	}
 	return token, nil
 }
