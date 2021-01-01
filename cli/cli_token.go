@@ -16,10 +16,29 @@ const tokenGenerateURL = "https://github.com/settings/tokens/new?description=Vin
 
 // AskGitHubAccessToken prompts for the GitHub access token.
 func (c *CLI) AskGitHubAccessToken() (string, error) {
-	fmt.Println(tokenGenerateURL)
+	tokenPath, err := c.defaultTokenPath()
+	if err != nil {
+		return "", err
+	}
+
 	var token string
+	if _, err := os.Stat(tokenPath); !os.IsNotExist(err) {
+		b, err := ioutil.ReadFile(tokenPath)
+		if err != nil {
+			return "", err
+		}
+
+		var t vin.Token
+		if err := json.Unmarshal(b, &t); err != nil {
+			return "", err
+		}
+		token = t.Token
+	}
+
+	fmt.Println(tokenGenerateURL)
 	prompt := &survey.Input{
 		Message: "Input your token:",
+		Default: token,
 	}
 	if err := survey.AskOne(prompt, &token); err != nil {
 		return "", err
@@ -32,20 +51,6 @@ func (c *CLI) StoreAccessToken(token string) error {
 	tokenPath, err := c.defaultTokenPath()
 	if err != nil {
 		return err
-	}
-
-	if _, err := os.Stat(tokenPath); !os.IsNotExist(err) {
-		var overwrite bool
-		prompt := &survey.Confirm{
-			Message: "Token file already exists. Overwrite?",
-		}
-		if err := survey.AskOne(prompt, &overwrite); err != nil {
-			return err
-		}
-
-		if !overwrite {
-			return nil
-		}
 	}
 
 	t := vin.Token{Token: token}
