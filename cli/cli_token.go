@@ -59,6 +59,7 @@ func (c *CLI) AskGitHubAccessToken() (string, error) {
 			return "", err
 		}
 	}
+	fmt.Println("Successful token verification!")
 	return token, nil
 }
 
