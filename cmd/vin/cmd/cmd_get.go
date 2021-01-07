@@ -5,7 +5,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var opt cli.Options
+var opt cli.GetOptions
 
 func runGet(cmd *cobra.Command, args []string) error {
 	c := cli.New()

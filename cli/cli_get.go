@@ -16,8 +16,8 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-// Options represents options for the CIL.
-type Options struct {
+// GetOptions represents options for the CIL.
+type GetOptions struct {
 	ConfigPath   string
 	IgnoreCache  bool
 	IgnoreFilter bool
@@ -33,7 +33,7 @@ func (c *CLI) defaultConfigPath() (string, error) {
 	return filepath.Join(cfg, "vin", "vin.toml"), nil
 }
 
-func (c *CLI) configPath(opt Options) (string, error) {
+func (c *CLI) configPath(opt GetOptions) (string, error) {
 	if opt.ConfigPath == "" {
 		path, err := c.defaultConfigPath()
 		if err != nil {
@@ -65,7 +65,7 @@ func (c *CLI) sanityCheck(app vin.App) error {
 	return nil
 }
 
-func (c *CLI) applyFilters(v *vin.Vin, opt Options) (*vin.Vin, error) {
+func (c *CLI) applyFilters(v *vin.Vin, opt GetOptions) (*vin.Vin, error) {
 	host, err := os.Hostname()
 	if err != nil {
 		return v, err
@@ -114,7 +114,7 @@ func (w defaultReadCloserWrapper) Wrap(a vin.App, r io.ReadCloser, l int64) io.R
 }
 
 // Run runs the CLI.
-func (c *CLI) Run(opt Options) error { //nolint:gocognit
+func (c *CLI) Run(opt GetOptions) error { //nolint:gocognit
 	configPath, err := c.configPath(opt)
 	if err != nil {
 		return err
