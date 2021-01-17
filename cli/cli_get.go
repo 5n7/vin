@@ -114,8 +114,13 @@ func (w defaultReadCloserWrapper) Wrap(a vin.App, r io.ReadCloser, l int64) io.R
 }
 
 // Get gets applications.
-func (c *CLI) Get(opt GetOptions) error { //nolint:gocognit
-	configPath, err := c.configPath(opt)
+func (c *CLI) Get(opt GetOptions) error { //nolint:funlen,gocognit
+	vinDir, err := vin.DefaultVinDir()
+	if err != nil {
+		return err
+	}
+
+	v, err := vin.New(vinDir)
 	if err != nil {
 		return err
 	}
@@ -125,8 +130,29 @@ func (c *CLI) Get(opt GetOptions) error { //nolint:gocognit
 		return err
 	}
 
-	v, err := vin.New(configPath, tokenPath)
+	var token string
+	if t := os.Getenv("GITHUB_TOKEN"); t != "" {
+		// read token from environment variable
+		token = t
+	} else if _, err := os.Stat(tokenPath); !os.IsNotExist(err) {
+		// read token from JSON file
+		t, err := vin.TokenFromJSON(tokenPath)
+		if err != nil {
+			return err
+		}
+		token = t
+	}
+
+	configPath, err := c.configPath(opt)
 	if err != nil {
+		return err
+	}
+
+	if err := v.ReadTOML(configPath); err != nil {
+		return err
+	}
+
+	if err := v.FetchApps(token); err != nil {
 		return err
 	}
 

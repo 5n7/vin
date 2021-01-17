@@ -34,7 +34,7 @@ func newGitHubClient(token string) *github.Client {
 	return github.NewClient(oauth2.NewClient(ctx, sts))
 }
 
-func vinDir() (string, error) {
+func DefaultVinDir() (string, error) {
 	home, err := os.UserHomeDir()
 	if err != nil {
 		return "", err
@@ -54,47 +54,34 @@ type Token struct {
 	Token string `json:"token"`
 }
 
-// New returns a Vin client.
-func New(configPath, tokenPath string) (*Vin, error) {
-	f, err := os.Open(configPath)
+func TokenFromJSON(path string) (string, error) {
+	b, err := ioutil.ReadFile(path)
 	if err != nil {
-		return nil, err
+		return "", err
+	}
+
+	var t Token
+	if err := json.Unmarshal(b, &t); err != nil {
+		return "", err
+	}
+	return t.Token, nil
+}
+
+func (v *Vin) ReadTOML(path string) error {
+	f, err := os.Open(path)
+	if err != nil {
+		return err
 	}
 	defer f.Close()
 
-	var v Vin
 	if err := toml.NewDecoder(f).Decode(&v); err != nil {
-		return nil, err
+		return err
 	}
+	return nil
+}
 
-	dir, err := vinDir()
-	if err != nil {
-		return nil, err
-	}
-	v.vinDir = dir
-
-	if err := os.MkdirAll(v.binDir(), os.ModePerm); err != nil {
-		return nil, err
-	}
-
-	if err := os.MkdirAll(v.tmpDir(), os.ModePerm); err != nil {
-		return nil, err
-	}
-
-	token := os.Getenv("GITHUB_TOKEN")
-	if _, err := os.Stat(tokenPath); !os.IsNotExist(err) {
-		b, err := ioutil.ReadFile(tokenPath)
-		if err != nil {
-			return nil, err
-		}
-
-		var t Token
-		if err := json.Unmarshal(b, &t); err != nil {
-			return nil, err
-		}
-		token = t.Token
-	}
-
+func (v *Vin) FetchApps(token string) error {
+	// fetch apps from GitHub Releases
 	gh := newGitHubClient(token)
 	var eg errgroup.Group
 	for i := range v.Apps {
@@ -105,9 +92,25 @@ func New(configPath, tokenPath string) (*Vin, error) {
 			}
 			return nil
 		})
+
+		if err := eg.Wait(); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// New returns a Vin client.
+func New(vinDir string) (*Vin, error) {
+	v := Vin{
+		vinDir: vinDir,
 	}
 
-	if err := eg.Wait(); err != nil {
+	if err := os.MkdirAll(v.binDir(), os.ModePerm); err != nil {
+		return nil, err
+	}
+
+	if err := os.MkdirAll(v.tmpDir(), os.ModePerm); err != nil {
 		return nil, err
 	}
 	return &v, nil
