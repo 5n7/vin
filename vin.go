@@ -42,11 +42,11 @@ func DefaultVinDir() (string, error) {
 	return filepath.Join(home, ".vin"), nil
 }
 
-func (v *Vin) binDir() string {
+func (v *Vin) BinDir() string {
 	return filepath.Join(v.vinDir, "bin")
 }
 
-func (v *Vin) tmpDir() string {
+func (v *Vin) TmpDir() string {
 	return filepath.Join(v.vinDir, "tmp")
 }
 
@@ -106,11 +106,11 @@ func New(vinDir string) (*Vin, error) {
 		vinDir: vinDir,
 	}
 
-	if err := os.MkdirAll(v.binDir(), os.ModePerm); err != nil {
+	if err := os.MkdirAll(v.BinDir(), os.ModePerm); err != nil {
 		return nil, err
 	}
 
-	if err := os.MkdirAll(v.tmpDir(), os.ModePerm); err != nil {
+	if err := os.MkdirAll(v.TmpDir(), os.ModePerm); err != nil {
 		return nil, err
 	}
 	return &v, nil

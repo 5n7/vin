@@ -34,7 +34,7 @@ func (v *Vin) download(app App, url string, wrapper ReadCloserWrapper) (string, 
 		return "", fmt.Errorf("http response not OK: %d", resp.StatusCode)
 	}
 
-	tmpDir, err := ioutil.TempDir(v.tmpDir(), "")
+	tmpDir, err := ioutil.TempDir(v.TmpDir(), "")
 	if err != nil {
 		return "", err
 	}
@@ -73,7 +73,7 @@ func (v *Vin) place(app App, src string) error {
 	if app.Name == "" {
 		app.Name = filepath.Base(src)
 	}
-	dst := filepath.Join(v.binDir(), app.Name)
+	dst := filepath.Join(v.BinDir(), app.Name)
 	if err := os.Rename(src, dst); err != nil {
 		return err
 	}
