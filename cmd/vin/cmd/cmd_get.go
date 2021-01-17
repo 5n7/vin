@@ -9,7 +9,7 @@ var opt cli.GetOptions
 
 func runGet(cmd *cobra.Command, args []string) error {
 	c := cli.New()
-	return c.Run(opt)
+	return c.Get(opt)
 }
 
 var getCmd = &cobra.Command{

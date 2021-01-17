@@ -113,8 +113,8 @@ func (w defaultReadCloserWrapper) Wrap(a vin.App, r io.ReadCloser, l int64) io.R
 	return bar.ProxyReader(r)
 }
 
-// Run runs the CLI.
-func (c *CLI) Run(opt GetOptions) error { //nolint:gocognit
+// Get gets applications.
+func (c *CLI) Get(opt GetOptions) error { //nolint:gocognit
 	configPath, err := c.configPath(opt)
 	if err != nil {
 		return err
