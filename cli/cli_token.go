@@ -80,7 +80,7 @@ func (c *CLI) StoreAccessToken(token string) error {
 		return err
 	}
 
-	if err := ioutil.WriteFile(tokenPath, b, os.ModePerm); err != nil {
+	if err := ioutil.WriteFile(tokenPath, b, 0600); err != nil {
 		return err
 	}
 	fmt.Printf("Your token is stored in %s\n", tokenPath)
